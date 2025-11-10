@@ -1,0 +1,19 @@
+{
+  "name": "Custom-Stream-Proxy",
+  "version": "1.0.0",
+  "description": "Proxy to serve HLS streams with custom referer.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "request": "^2.88.2"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "keywords": [],
+  "author": "Zakaria Zahidi",
+  "license": "MIT"
+}
