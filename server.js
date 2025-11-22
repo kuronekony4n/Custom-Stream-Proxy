@@ -2,7 +2,7 @@ const express = require('express');
 const request = require('request');
 const app = express();
 
-const append = 'https://stream.app/';
+const append = 'https://custom-stream-proxy.vercel.app/';
 
 // Middleware to allow CORS
 app.use((req, res, next) => {
@@ -14,15 +14,24 @@ app.use((req, res, next) => {
 
 // Proxy route for handling full URLs and headers
 app.get('/*', (req, res) => {
-  const targetUrl = req.path.slice(1); // Extract the full target URL from the path
+  const rawParam = req.query && req.query.url;
+  let targetUrl = rawParam ? String(rawParam) : req.path.slice(1);
 
-  if (!targetUrl.startsWith('http')) { // Allow both HTTP and HTTPS
+  if (rawParam) {
+    try {
+      const decoded = Buffer.from(String(rawParam), 'base64').toString('utf8');
+      if (decoded.startsWith('http')) {
+        targetUrl = decoded;
+      }
+    } catch (_) {}
+  }
+
+  if (!targetUrl.startsWith('http')) {
     return res.status(400).send('Bad Request: Invalid URL');
   }
 
-  // Set the required headers (User-Agent and Referer)
   const options = {
-    url: targetUrl + (req._parsedUrl.search || ''), // Append query string if available
+    url: rawParam ? targetUrl : targetUrl + (req._parsedUrl.search || ''),
     headers: {
       'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1',
       'Referer': 'https://www.patreon.com/',
